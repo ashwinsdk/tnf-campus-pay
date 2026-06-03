@@ -3,14 +3,22 @@ package model;
 import lombok.*;
 
 // model for student containing all the fields involved in Student table
-@NoArgsConstructor
 @AllArgsConstructor
-@Data
+@NoArgsConstructor
+@Getter
+@Setter
 public class Student {
-    private Long id;
+    private int id;
     private String name;
     private String course;
     private String email;
     private String phone;
     private boolean is_active;
+
+    public Student(String name, String course, String email, String phone) {
+        this.name = name;
+        this.course = course;
+        this.email = email;
+        this.phone = phone;
+    }
 }
