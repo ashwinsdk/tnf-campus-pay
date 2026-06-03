@@ -10,9 +10,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class CampusPaymentRepository {
+public class CampusPaymentService {
 
-    private static final Logger logger = LoggerFactory.getLogger(CampusPaymentRepository.class);
+    private static final Logger logger = LoggerFactory.getLogger(CampusPaymentService.class);
 
     public void payFine(InstituteMoney im, CampusPayment campusPayment, Connection con, int fromId, String type) throws SQLException,StudentNotFoundException {
         logger.info("payFine called");
