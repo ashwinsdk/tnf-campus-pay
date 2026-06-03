@@ -5,7 +5,9 @@ import repository.GroupExpenseRepository;
 
 import java.util.List;
 
-public class GroupExpenseRepositoryJdbc implements GroupExpenseRepository {
+public class GroupExpenseRepositoryJdbc
+        implements GroupExpenseRepository {
+
     @Override
     public int createGroup(GroupExpense group) {
         return 0;
