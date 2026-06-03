@@ -26,7 +26,19 @@ public class Main {
             System.out.println("------------------------");
             System.out.print("Enter your choice: ");
             int choice = sc.nextInt();
-            switch (choice){}
+            switch (choice){
+                case 1:{}
+                case 2:{}
+                case 3:{}
+                case 4:{}
+                case 5:{}
+                case 6:{}
+                case 7:{}
+                default:{
+                    System.out.println("See you again!");
+                    System.exit(1);
+                }
+            }
         }
     }
 }
