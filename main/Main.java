@@ -16,7 +16,7 @@ public class Main {
         InstituteMoney im = new InstituteMoney();
         CampusPayment cm = new Hackathon();
         CampusPaymentService cp = new CampusPaymentService();
-        cp.payFine(im,cm,connection,2,"WITHDRAW");
+        cp.payFine(im,cm,connection,1,"TRANSFER");
         System.out.println("payFine called");
     }
 }
