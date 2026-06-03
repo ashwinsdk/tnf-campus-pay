@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import repository.StudentRepositoryImplementation;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -13,6 +14,8 @@ public class Main {
       //  Student st = new Student("Prakash Ranjan","BTech ECE","prakash@gmail.com","1234567890");
         StudentRepositoryImplementation std = new StudentRepositoryImplementation();
 
-        std.findByEmail("prayas@example.com");
+      //  std.findByEmail("prayas@example.com");
+      //  List<Student> studentList = std.findAll();
+     //   System.out.println(studentList);
     }
 }

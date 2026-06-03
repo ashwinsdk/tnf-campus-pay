@@ -5,8 +5,7 @@ import lombok.*;
 // model for student containing all the fields involved in Student table
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class Student {
     private int id;
     private String name;

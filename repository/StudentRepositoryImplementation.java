@@ -6,10 +6,8 @@ import model.Student;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StudentRepositoryImplementation implements StudentRepository  {
@@ -130,7 +128,27 @@ public class StudentRepositoryImplementation implements StudentRepository  {
 
     @Override
     public List<Student> findAll() {
-        return List.of();
+        try(Statement st = con.createStatement()){
+            logger.info("Finding All student into DB process started");
+            ResultSet rs = st.executeQuery("SELECT * from student");
+            logger.debug("Finding All student into DB process right now");
+            List<Student> studentsList = new ArrayList<>();
+            while(rs.next()){
+                studentsList.add(new Student(rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("course"),
+                        rs.getString("email"),
+                        rs.getString("phone"),
+                        rs.getBoolean("is_active")));
+            }
+            logger.info("Returned all students from DB as a list");
+            return studentsList;
+
+        }
+        catch (SQLException e) {
+            logger.error("Failed to find All student into DB process",e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
