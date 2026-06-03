@@ -61,7 +61,7 @@ public class WalletService extends AccountType {
         withdraw(conn, amount, fromId, type);
         deposit(conn, amount, toId, type);
         if (type.equals("TRANSFER")) {
-             tx.saveTransaction(conn,fromId,toId, amount, type);,
+             tx.saveTransaction(conn,fromId,toId, amount, type);
         }
     }
 }
