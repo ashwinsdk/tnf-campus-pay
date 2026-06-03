@@ -76,7 +76,29 @@ public class StudentRepositoryImplementation implements StudentRepository  {
 
     @Override
     public Student findByName(String name) {
-        return null;
+        logger.info("Finding student by name into DB process started");
+        try(PreparedStatement ps = con.prepareStatement("SELECT * from student where name = ?")){
+            ps.setString(1,name);
+
+            logger.debug("Finding student by name={} into DB process right now",name);
+
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                logger.debug("Found student by name={} into DB process",name);
+                return new Student(rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("course"),
+                        rs.getString("email"),
+                        rs.getString("phone"),
+                        rs.getBoolean("is_active"));
+            }
+            logger.warn("Student with name={} found in DB",name);
+            return null;
+        }
+        catch (SQLException e) {
+            logger.error("Failed to find student by name={} into DB",name,e);
+            throw new RuntimeException("Failed to find student with name="+name,e);
+        }
     }
 
     @Override
