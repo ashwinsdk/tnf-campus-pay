@@ -1,23 +1,21 @@
 package main;
 
 import config.DatabaseConfig;
-import repository.ExpenseSplitRepository;
-import repository.GroupExpenseRepository;
-import repository.GroupMemberRepository;
-import repository.jdbc.ExpenseSplitRepositoryJdbc;
-import repository.jdbc.GroupExpenseRepositoryJdbc;
-import repository.jdbc.GroupMemberRepositoryJdbc;
-import service.SplitwiseService;
+import model.AccountType;
+import service.TransactionService;
+import service.WalletService;
 
 import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws  Exception{
+        Connection conn  = DatabaseConfig.getConnection();
+        AccountType w = new WalletService();
+
+        w.deposit(conn, 100, 101, "DEPOSIT");
+        TransactionService ts = new TransactionService();
+        ts.showTransactionHistory();
 
     }
 }

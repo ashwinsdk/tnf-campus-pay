@@ -10,7 +10,7 @@ import java.util.List;
 public class TransactionRepository {
 
     public void saveTransaction(Connection conn,
-                                Transaction transaction)
+                                int fromId, int toId, double amount, String type )
             throws SQLException {
 
         String sql = """
@@ -22,10 +22,10 @@ public class TransactionRepository {
         try (PreparedStatement ps =
                      conn.prepareStatement(sql)) {
 
-            ps.setInt(1, transaction.getSenderId());
-            ps.setInt(2, transaction.getReceiverId());
-            ps.setDouble(3, transaction.getAmount());
-            ps.setString(4, transaction.getTransactionType());
+            ps.setInt(1, fromId);
+            ps.setInt(2, toId);
+            ps.setDouble(3, amount);
+            ps.setString(4, type);
 
             ps.executeUpdate();
         }
