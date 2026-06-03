@@ -10,7 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentRepositoryImplementation implements StudentRepository  {
+public class StudentRepositoryImplementation implements StudentRepository, AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(StudentRepositoryImplementation.class);
 
@@ -179,6 +179,47 @@ public class StudentRepositoryImplementation implements StudentRepository  {
             throw new RuntimeException("Failed to update student with id="+student.getId(),e);
         }
 
+
+    }
+
+    @Override
+    public void deactivate(int id) {
+        logger.info("Deactivating student with id={} into DB process",id);
+        try(PreparedStatement ps = con.prepareStatement("UPDATE student is_active = ? WHERE id = ? ")){
+            ps.setBoolean(1, false);
+            ps.setInt(2, id);
+            logger.debug("Deactivating student with id={} into DB process",id);
+            int rows =  ps.executeUpdate();
+            if(rows == 0){
+                throw new StudentNotFoundException("Student whose value we are deactivating is not found");
+            }
+        }
+        catch (SQLException e) {
+            logger.error("Failed to deactivate student with id={} into DB",id,e);
+            throw new RuntimeException("Failed to deactivate student with id="+id,e);
+        }
+    }
+
+    @Override
+    public void activate(int id) {
+        logger.info("Activating student with id={} into DB process",id);
+        try(PreparedStatement ps = con.prepareStatement("UPDATE student is_active = ? WHERE id = ? ")){
+            ps.setBoolean(1, true);
+            ps.setInt(2, id);
+            logger.debug("Activating student with id={} into DB process",id);
+            int rows =  ps.executeUpdate();
+            if(rows == 0){
+                throw new StudentNotFoundException("Student whose value we are Activating is not found");
+            }
+        }
+        catch (SQLException e) {
+            logger.error("Failed to Activating student with id={} into DB",id,e);
+            throw new RuntimeException("Failed to Activating student with id="+id,e);
+        }
+    }
+
+    @Override
+    public void close() throws Exception {
 
     }
 }

@@ -11,4 +11,6 @@ interface StudentRepository {
     Student findByEmail(String email);
     List<Student> findAll();
     void update(Student student);
+    void deactivate(int id);
+    void activate(int id);
 }
