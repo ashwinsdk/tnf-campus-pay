@@ -14,3 +14,4 @@ public class GroupMember {
     private int groupId;
     private int studentId;
 }
+ 

@@ -17,3 +17,4 @@ public class ExpenseSplit {
     private String status;
 
 }
+ 
