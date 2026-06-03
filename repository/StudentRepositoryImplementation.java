@@ -10,7 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentRepositoryImplementation implements StudentRepository, AutoCloseable {
+public class StudentRepositoryImplementation implements StudentRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(StudentRepositoryImplementation.class);
 
@@ -40,6 +40,11 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
 
             Student newStudent = findByName(student.getName());
             student.setId(newStudent.getId());
+            PreparedStatement sp = con.prepareStatement("insert into campus_payment(id) values(?)");
+
+            sp.setInt(1, newStudent.getId());
+            sp.executeUpdate();
+            sp.close();
             logger.info("Updated the newly saved student's id with id={} into DB", student.getId());
         }
         catch (SQLException e){
@@ -218,8 +223,4 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
         }
     }
 
-    @Override
-    public void close() throws Exception {
-
-    }
 }
