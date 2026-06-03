@@ -12,7 +12,7 @@ public class Student {
     private String course;
     private String email;
     private String phone;
-    private boolean is_active;
+    private boolean is_active = true;
 
     public Student(String name, String course, String email, String phone) {
         this.name = name;

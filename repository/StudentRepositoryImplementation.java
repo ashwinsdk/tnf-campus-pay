@@ -37,6 +37,10 @@ public class StudentRepositoryImplementation implements StudentRepository  {
                 throw new RuntimeException("Student not saved! ");
             }
             logger.info("Saved student with name={} and email={} into DB",student.getName(),student.getEmail());
+
+            Student newStudent = findByName(student.getName());
+            student.setId(newStudent.getId());
+            logger.info("Updated the newly saved student's id with id={} into DB", student.getId());
         }
         catch (SQLException e){
             logger.error("Failed to save student into DB",e);
@@ -153,6 +157,28 @@ public class StudentRepositoryImplementation implements StudentRepository  {
 
     @Override
     public void update(Student student) {
+        logger.info("Updating student into DB process started");
+        try(PreparedStatement ps = con.prepareStatement("UPDATE student SET name = ?, course = ?, email = ?, phone = ?, is_active = ? WHERE id = ? ")){
+            ps.setString(1, student.getName());
+            ps.setString(2, student.getCourse());
+            ps.setString(3, student.getEmail());
+            ps.setString(4, student.getPhone());
+            ps.setBoolean(5, student.is_active());
+            ps.setInt(6, student.getId());
+            logger.debug("Updating student into DB process right now");
+            int rows =  ps.executeUpdate();
+
+            if(rows == 0){
+                throw new StudentNotFoundException("Student whose value we are updating is not found");
+            }
+            logger.info("Updated student with id={} into DB process",student.getId());
+
+        }
+        catch (SQLException e) {
+            logger.error("Failed to update student with id={} into DB",student.getId(),e);
+            throw new RuntimeException("Failed to update student with id="+student.getId(),e);
+        }
+
 
     }
 }
