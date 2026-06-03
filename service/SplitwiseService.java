@@ -7,15 +7,22 @@ import repository.ExpenseSplitRepository;
 import repository.GroupExpenseRepository;
 import repository.GroupMemberRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SplitwiseService {
+
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SplitwiseService.class);
 
     private final GroupExpenseRepository groupExpenseRepo;
     private final GroupMemberRepository groupMemberRepo;
     private final ExpenseSplitRepository expenseSplitRepo;
 
-    // Dependency Injection constructor
+
     public SplitwiseService(GroupExpenseRepository groupExpenseRepo,
                             GroupMemberRepository groupMemberRepo,
                             ExpenseSplitRepository expenseSplitRepo) {
@@ -24,11 +31,9 @@ public class SplitwiseService {
         this.expenseSplitRepo = expenseSplitRepo;
     }
 
-    /**
-     * Calculates the fair share splits and saves group metrics to MySQL tables.
-     */
+
     public void createExpenseGroup(String groupName, double totalAmount, int createdBy, List<Integer> members) throws InvalidInputException {
-        // 1. Core Rule Validations
+
         if (groupName == null || groupName.trim().isEmpty()) {
             throw new InvalidInputException("Group creation failed: Group name cannot be blank.");
         }
@@ -39,7 +44,18 @@ public class SplitwiseService {
             throw new InvalidInputException("Group creation failed: You must include at least one campus student member.");
         }
 
-        // 2. Build and persist core group metadata
+
+        List<Integer> participants = new ArrayList<>();
+        for (int studentId : members) {
+            if (!participants.contains(studentId)) {
+                participants.add(studentId);
+            }
+        }
+        if (!participants.contains(createdBy)) {
+            participants.add(createdBy);
+        }
+
+
         GroupExpense group = GroupExpense.builder()
                 .groupName(groupName)
                 .totalAmount(totalAmount)
@@ -48,69 +64,78 @@ public class SplitwiseService {
 
         int generatedGroupId = groupExpenseRepo.createGroup(group);
         if (generatedGroupId == -1) {
-            System.out.println(" Database processing failure. Group was not saved.");
+            LOGGER.error("Database processing failure. Group '{}' was not saved.", groupName);
             return;
         }
 
-        // 3. Populate group tracking records
-        for (int studentId : members) {
+
+        for (int studentId : participants) {
             groupMemberRepo.addMember(generatedGroupId, studentId);
         }
 
-        // 4. Process individual split math with Java Streams
-        double fairShareAmount = totalAmount / members.size();
+
+        int participantCount = participants.size();
+        long totalPaise = Math.round(totalAmount * 100);
+        long basePaise = totalPaise / participantCount;
+        long remainderPaise = totalPaise % participantCount;
 
 
-        members.stream()
-                .filter(studentId -> studentId != createdBy)
-                .forEach(studentId -> {
-                    ExpenseSplit split = ExpenseSplit.builder()
-                            .groupId(generatedGroupId)
-                            .studentId(studentId)
-                            .amountOwed(fairShareAmount)
-                            .status("PENDING")
-                            .build();
-                    expenseSplitRepo.createSplit(split);
-                });
+        for (int i = 0; i < participants.size(); i++) {
+            int studentId = participants.get(i);
+            if (studentId == createdBy) {
+                continue;
+            }
+            long sharePaise = basePaise + (i < remainderPaise ? 1 : 0);
+            ExpenseSplit split = ExpenseSplit.builder()
+                    .groupId(generatedGroupId)
+                    .studentId(studentId)
+                    .amountOwed(sharePaise / 100.0)
+                    .status("PENDING")
+                    .build();
+            expenseSplitRepo.createSplit(split);
+        }
 
-        System.out.println(" Expense Group '" + groupName + "' calculated successfully [ID: " + generatedGroupId + "].");
-        System.out.println("Individual Split Share: ₹" + String.format("%.2f", fairShareAmount));
+        LOGGER.info("Expense Group '" + groupName + "' calculated successfully [ID: " + generatedGroupId + "].");
+        if (participantCount == 1) {
+            LOGGER.info("Only the payer is in this group, so there are no dues to split.");
+        } else {
+            LOGGER.info("Individual Split Share: ₹" + String.format("%.2f", basePaise / 100.0)
+                    + " (across " + participantCount + " participants)");
+        }
     }
 
 
     public void viewGroupBalances(int groupId) throws InvalidInputException {
         GroupExpense group = groupExpenseRepo.getGroupById(groupId);
 
-        // Reusing your custom exception for data verification rules
+
         if (group == null) {
             throw new InvalidInputException("Lookup failed: Expense Group ID " + groupId + " does not exist in our campus tables.");
         }
 
         List<ExpenseSplit> splits = expenseSplitRepo.getSplitsByGroup(groupId);
 
-        System.out.println("\n----------------------------------------------");
-        System.out.println("CAMPUS BALANCE MONITOR FOR: " + group.getGroupName().toUpperCase());
-        System.out.println("Total Paid: ₹" + group.getTotalAmount() + " | Settled By Student ID: " + group.getCreatedBy());
-        System.out.println("-------------------------------------------------");
+        LOGGER.info("----------------------------------------------");
+        LOGGER.info("CAMPUS BALANCE MONITOR FOR: " + group.getGroupName().toUpperCase());
+        LOGGER.info("Total Paid: ₹" + group.getTotalAmount() + " | Settled By Student ID: " + group.getCreatedBy());
+        LOGGER.info("-------------------------------------------------");
 
-
-        System.out.println("Pending Campus Dues:");
+        LOGGER.info("Pending Campus Dues:");
         splits.stream()
                 .filter(split -> "PENDING".equalsIgnoreCase(split.getStatus()))
-                .forEach(split -> System.out.println("   - Student ID " + split.getStudentId() + " owes: ₹" + String.format("%.2f", split.getAmountOwed())));
+                .forEach(split -> LOGGER.info("   - Student ID " + split.getStudentId() + " owes: ₹" + String.format("%.2f", split.getAmountOwed())));
 
-        System.out.println("\nCleared Ledger Accounts:");
+        LOGGER.info("Cleared Ledger Accounts:");
         splits.stream()
                 .filter(split -> "PAID".equalsIgnoreCase(split.getStatus()))
-                .forEach(split -> System.out.println("   - Student ID " + split.getStudentId() + " has fully settled their share."));
+                .forEach(split -> LOGGER.info("   - Student ID " + split.getStudentId() + " has fully settled their share."));
 
-        System.out.println("----------------------------------------------------\n");
+        LOGGER.info("----------------------------------------------------");
     }
 
-    /**
-     * Marks a specific split balance ledger row as PAID.
-     */
+
     public void settleExpense(int splitId) {
         expenseSplitRepo.markAsPaid(splitId);
+        LOGGER.info("Settlement requested for split ID " + splitId + ".");
     }
 }
