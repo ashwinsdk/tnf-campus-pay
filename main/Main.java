@@ -13,6 +13,6 @@ public class Main {
       //  Student st = new Student("Prakash Ranjan","BTech ECE","prakash@gmail.com","1234567890");
         StudentRepositoryImplementation std = new StudentRepositoryImplementation();
 
-        std.findByName("Prayas Yadav");
+        std.findByEmail("prayas@example.com");
     }
 }
