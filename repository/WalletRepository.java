@@ -7,11 +7,14 @@ import java.sql.SQLException;
 
 public class WalletRepository {
     public double getBalanceFromWallet (Connection conn, int id) throws SQLException{
-        PreparedStatement retrieveBalance = conn.prepareStatement("select balance from wallet where id = ?");
-        retrieveBalance.setInt(1, 101);
-        ResultSet rs = retrieveBalance.executeQuery();
-        if (rs.next()) {
-            return rs.getDouble(1);
+        String sql = "select balance from wallet where id = ?";
+        try (PreparedStatement retrieveBalance = conn.prepareStatement(sql)) {
+            retrieveBalance.setInt(1, id);
+            try (ResultSet rs = retrieveBalance.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
         }
         return 0.0;
     }
