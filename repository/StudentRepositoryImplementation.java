@@ -45,7 +45,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
             logger.info("Updated the newly saved student's id with id={} into DB", student.getId());
         }
         catch (SQLException e){
-            logger.error("Failed to save student into DB",e);
+            logger.error("Failed to save student into DB");
             throw new RuntimeException("Failed to save student! ",e);
         }
 
@@ -74,7 +74,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
             return null;
         }
         catch (SQLException e) {
-            logger.error("Failed to find student by id={} into DB",id,e);
+            logger.error("Failed to find student by id={} into DB",id);
             throw new RuntimeException("Failed to find student with id="+id,e);
         }
     }
@@ -101,7 +101,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
             return null;
         }
         catch (SQLException e) {
-            logger.error("Failed to find student by name={} into DB",name,e);
+            logger.error("Failed to find student by name={} into DB",name);
             throw new RuntimeException("Failed to find student with name="+name,e);
         }
     }
@@ -128,7 +128,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
             return null;
         }
         catch (SQLException e) {
-            logger.error("Failed to find student by email={} into DB",email,e);
+            logger.error("Failed to find student by email={} into DB",email);
             throw new RuntimeException("Failed to find student with email="+email,e);
         }
     }
@@ -153,7 +153,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
 
         }
         catch (SQLException e) {
-            logger.error("Failed to find All student into DB process",e);
+            logger.error("Failed to find All student into DB process");
             throw new RuntimeException(e);
         }
     }
@@ -178,7 +178,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
 
         }
         catch (SQLException e) {
-            logger.error("Failed to update student with id={} into DB",student.getId(),e);
+            logger.error("Failed to update student with id={} into DB",student.getId());
             throw new RuntimeException("Failed to update student with id="+student.getId(),e);
         }
 
@@ -198,7 +198,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
             }
         }
         catch (SQLException e) {
-            logger.error("Failed to deactivate student with id={} into DB",id,e);
+            logger.error("Failed to deactivate student with id={} into DB",id);
             throw new RuntimeException("Failed to deactivate student with id="+id,e);
         }
     }
@@ -216,7 +216,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
             }
         }
         catch (SQLException e) {
-            logger.error("Failed to Activating student with id={} into DB",id,e);
+            logger.error("Failed to Activating student with id={} into DB",id);
             throw new RuntimeException("Failed to Activating student with id="+id,e);
         }
     }
