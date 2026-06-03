@@ -10,7 +10,7 @@ import java.sql.SQLException;
 
 public class Main {
     // private static final Logger logger = LoggerFactory.getLogger(Main.class);
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws Exception {
         // Student st = new Student("Dilip Choubey","BTech CSE","dilip@gmail.com","1224567890");
       //  StudentRepositoryImplementation std = new StudentRepositoryImplementation();
         // StudentServiceImplementation studentService = new StudentServiceImplementation();
