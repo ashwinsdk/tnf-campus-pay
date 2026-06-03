@@ -10,7 +10,7 @@ public class DatabaseConfig {
 
     private static final String URL = "jdbc:mysql://localhost:3306/campus_pay";
     private static final String USERNAME = "root";
-    private static final String PASSWORD = "ashwin123";
+    private static final String PASSWORD = "";
 
     static {
         try {
