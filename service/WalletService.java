@@ -47,6 +47,25 @@ public class WalletService extends AccountType {
             if (type.equals("WITHDRAW")){
                 tx.saveTransaction(conn,fromId,fromId, amount, type);
             }
+            switch (type){
+                case "hostel":
+                    tx.saveTransaction(conn,fromId,fromId, amount, "HOSTEL");
+                    break;
+                case "library":
+                    tx.saveTransaction(conn,fromId,fromId, amount, "LIBRARY");
+                    break;
+                case "hackathon":
+                    tx.saveTransaction(conn,fromId,fromId, amount, "HACKATHON");
+                    break;
+                case "canteen":
+                    tx.saveTransaction(conn,fromId,fromId, amount, "CANTEEN");
+                    break;
+                case "workshop":
+                    tx.saveTransaction(conn,fromId,fromId, amount, "WORKSHOP");
+                    break;
+                default:
+                    break;
+            }
         }
         else {
             throw new SQLException("[ERROR] Withdrawal failed: insufficient balance");

@@ -1,6 +1,5 @@
 package repository;
 
-import config.DatabaseConfig;
 import exception.StudentNotFoundException;
 import model.Student;
 import org.slf4j.Logger;
@@ -14,13 +13,11 @@ public class StudentRepositoryImplementation implements StudentRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(StudentRepositoryImplementation.class);
 
-    Connection con = DatabaseConfig.getConnection();
+   // Connection con = DatabaseConfig.getConnection();
 
-    public StudentRepositoryImplementation() throws SQLException {
-    }
 
     @Override
-    public void save(Student student) {
+    public void save(Connection con,Student student) {
         logger.info("Saving student into DB process started");
         try(PreparedStatement ps = con.prepareStatement("insert into student(name,course,email,phone) values (?,?,?,?)")){
             ps.setString(1,student.getName());
@@ -38,7 +35,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
             }
             logger.info("Saved student with name={} and email={} into DB",student.getName(),student.getEmail());
 
-            Student newStudent = findByName(student.getName());
+            Student newStudent = findByName(con,student.getName());
             student.setId(newStudent.getId());
             PreparedStatement sp = con.prepareStatement("insert into campus_payment(id) values(?)");
 
@@ -54,8 +51,9 @@ public class StudentRepositoryImplementation implements StudentRepository {
 
     }
 
+
     @Override
-    public Student findById(int id) {
+    public Student findById(Connection con,int id) {
         logger.info("Finding student by id into DB process started");
         try(PreparedStatement ps = con.prepareStatement("SELECT * from student where id = ?")){
             ps.setInt(1,id);
@@ -82,7 +80,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
     }
 
     @Override
-    public Student findByName(String name) {
+    public Student findByName(Connection con,String name) {
         logger.info("Finding student by name into DB process started");
         try(PreparedStatement ps = con.prepareStatement("SELECT * from student where name = ?")){
             ps.setString(1,name);
@@ -109,7 +107,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
     }
 
     @Override
-    public Student findByEmail(String email) {
+    public Student findByEmail(Connection con,String email) {
         logger.info("Finding student by email into DB process started");
         try(PreparedStatement ps = con.prepareStatement("SELECT * from student where email = ?")){
             ps.setString(1,email);
@@ -136,7 +134,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
     }
 
     @Override
-    public List<Student> findAll() {
+    public List<Student> findAll(Connection con) {
         try(Statement st = con.createStatement()){
             logger.info("Finding All student into DB process started");
             ResultSet rs = st.executeQuery("SELECT * from student");
@@ -161,7 +159,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
     }
 
     @Override
-    public void update(Student student) {
+    public void update(Connection con,Student student) {
         logger.info("Updating student into DB process started");
         try(PreparedStatement ps = con.prepareStatement("UPDATE student SET name = ?, course = ?, email = ?, phone = ?, is_active = ? WHERE id = ? ")){
             ps.setString(1, student.getName());
@@ -188,7 +186,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
     }
 
     @Override
-    public void deactivate(int id) {
+    public void deactivate(Connection con,int id) {
         logger.info("Deactivating student with id={} into DB process",id);
         try(PreparedStatement ps = con.prepareStatement("UPDATE student is_active = ? WHERE id = ? ")){
             ps.setBoolean(1, false);
@@ -206,7 +204,7 @@ public class StudentRepositoryImplementation implements StudentRepository {
     }
 
     @Override
-    public void activate(int id) {
+    public void activate(Connection con,int id) {
         logger.info("Activating student with id={} into DB process",id);
         try(PreparedStatement ps = con.prepareStatement("UPDATE student is_active = ? WHERE id = ? ")){
             ps.setBoolean(1, true);
