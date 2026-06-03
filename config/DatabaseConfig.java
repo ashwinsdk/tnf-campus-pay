@@ -8,7 +8,7 @@ public class DatabaseConfig{
 
     private static final String URL = "jdbc:mysql://localhost:3306/tnfcampus_pay";
     private static final String USER = "root";
-    private static final String PASSWORD = "04112004sK_@";
+    private static final String PASSWORD = "";
 
     public static Connection getConnection() throws SQLException {
 

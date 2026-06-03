@@ -14,6 +14,7 @@ public class ExpenseSplit {
     private int groupId;
     private int studentId;
     private double amountOwed;
-    private boolean isPaid;
+    private String status;
 
 }
+ 
