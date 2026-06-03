@@ -8,9 +8,9 @@ import java.sql.SQLException;
 public class DatabaseConfig {
 
 
-    private static final String URL = "jdbc:mysql://localhost:3606/campus_pay";
+    private static final String URL = "jdbc:mysql://localhost:3306/campus_pay";
     private static final String USERNAME = "root";
-    private static final String PASSWORD = "your_password_here";
+    private static final String PASSWORD = "";
 
     static {
         try {
