@@ -1,1 +1,0 @@
-# TAYLOR AND FRANCIS Campus Pay
