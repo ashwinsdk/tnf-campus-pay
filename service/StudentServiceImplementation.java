@@ -18,6 +18,10 @@ public class StudentServiceImplementation implements StudentService{
 
     private static final Logger logger = LoggerFactory.getLogger(StudentServiceImplementation.class);
 
+    // Check if already registered
+    public boolean checkDuplicateId(Connection conn, int student_id) throws SQLException{
+        return staticRepo.checkStudentRegistration(conn,student_id);
+    }
 
     @Override
     public void registerStudent(Connection con,Student student) throws DuplicateStudentException {

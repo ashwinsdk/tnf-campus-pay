@@ -18,6 +18,8 @@ public class Main {
         StudentServiceImplementation studentService = new StudentServiceImplementation();
         WalletService wallet = new WalletService();
         Connection conn = null;
+        int currentStudentId = 0;
+
         // Keep showing the menu until the user chooses to exit
         try {
             conn = DatabaseConfig.getConnection();
@@ -43,16 +45,25 @@ public class Main {
                         System.out.println("Enter id:");
                         int id = sc.nextInt();
 
-                        System.out.println("Enter name:");
-                        String name = sc.nextLine();
-                        System.out.println("Enter course:");
-                        String course= sc.nextLine();
-                        System.out.println("Enter email:");
-                        String email= sc.nextLine();
-                        System.out.println("Enter phone:");
-                        String phone= sc.nextLine();
+                        if (studentService.checkDuplicateId(conn,id))
+                        {
+                            System.out.println("Enter name:");
+                            sc.nextLine();
+                            String name = sc.nextLine();
+                            System.out.println("Enter course:");
+                            String course= sc.nextLine();
+                            System.out.println("Enter email:");
+                            String email= sc.nextLine();
+                            System.out.println("Enter phone:");
+                            String phone= sc.nextLine();
 
-                        studentService.registerStudent(new Student(id, name, course, email, phone, true));
+                            studentService.registerStudent(conn,new Student(id, name, course, email, phone, true));
+                        }
+                        else {
+                            System.out.println("[ERROR] This studentId already is already registered");
+                            break;
+                        }
+                        break;
                     }
                     case 2:{
                         System.out.println("Enter your student id: ");

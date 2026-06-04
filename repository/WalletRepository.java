@@ -15,6 +15,9 @@ public class WalletRepository {
                     return false;
                 }
             }
+            catch (SQLException e){
+                e.printStackTrace();
+            }
         }
         return true;
     }
@@ -36,6 +39,9 @@ public class WalletRepository {
                 if (rs.next()) {
                     return rs.getDouble(1);
                 }
+            }
+            catch (SQLException e){
+                e.printStackTrace();
             }
         }
         return 0.0;

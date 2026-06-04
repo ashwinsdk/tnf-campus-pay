@@ -51,7 +51,22 @@ public class StudentRepositoryImplementation implements StudentRepository {
 
     }
 
-
+    public boolean checkStudentRegistration(Connection conn, int student_id){
+        logger.info("Checking for student if already registered...");
+        try(PreparedStatement ps = conn.prepareStatement("SELECT id from student where id = ?")) {
+            ps.setInt(1, student_id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return false;
+                }
+            }
+        }
+        catch (SQLException e) {
+            logger.error("Failed to find student by id={} into DB",student_id);
+            throw new RuntimeException("Failed to find student with id="+student_id,e);
+        }
+        return true;
+    }
     @Override
     public Student findById(Connection con,int id) {
         logger.info("Finding student by id into DB process started");

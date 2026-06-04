@@ -1,0 +1,13 @@
+2026-06-04 09:50:51 [main] INFO  r.StudentRepositoryImplementation - Checking for student if already registered...
+2026-06-04 09:51:06 [main] INFO  s.StudentServiceImplementation - Register Service Started!
+2026-06-04 09:51:06 [main] INFO  r.StudentRepositoryImplementation - Finding student by email into DB process started
+2026-06-04 09:51:06 [main] DEBUG r.StudentRepositoryImplementation - Finding student by email=a@b.com into DB process right now
+2026-06-04 09:51:06 [main] WARN  r.StudentRepositoryImplementation - Student with email=a@b.com found in DB
+2026-06-04 09:51:06 [main] INFO  s.StudentServiceImplementation - Register Service Success!
+2026-06-04 09:51:06 [main] INFO  r.StudentRepositoryImplementation - Saving student into DB process started
+2026-06-04 09:51:06 [main] DEBUG r.StudentRepositoryImplementation - Inserting student with name=ashwin amd email=a@b.com into DB right now
+2026-06-04 09:51:06 [main] INFO  r.StudentRepositoryImplementation - Saved student with name=ashwin and email=a@b.com into DB
+2026-06-04 09:51:06 [main] INFO  r.StudentRepositoryImplementation - Finding student by name into DB process started
+2026-06-04 09:51:06 [main] DEBUG r.StudentRepositoryImplementation - Finding student by name=ashwin into DB process right now
+2026-06-04 09:51:06 [main] DEBUG r.StudentRepositoryImplementation - Found student by name=ashwin into DB process
+2026-06-04 09:51:06 [main] INFO  r.StudentRepositoryImplementation - Updated the newly saved student's id with id=1 into DB
