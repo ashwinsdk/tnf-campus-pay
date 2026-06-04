@@ -1,5 +1,6 @@
 package service;
 
+import config.DatabaseConfig;
 import exception.InvalidInputException;
 import model.ExpenseSplit;
 import model.GroupExpense;
@@ -7,6 +8,8 @@ import repository.ExpenseSplitRepository;
 import repository.GroupExpenseRepository;
 import repository.GroupMemberRepository;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +23,7 @@ public class SplitwiseService {
     private final GroupExpenseRepository groupExpenseRepo;
     private final GroupMemberRepository groupMemberRepo;
     private final ExpenseSplitRepository expenseSplitRepo;
+    private final WalletService wallet;
 
     public SplitwiseService(GroupExpenseRepository groupExpenseRepo,
                             GroupMemberRepository groupMemberRepo,
@@ -27,6 +31,7 @@ public class SplitwiseService {
         this.groupExpenseRepo = groupExpenseRepo;
         this.groupMemberRepo = groupMemberRepo;
         this.expenseSplitRepo = expenseSplitRepo;
+        wallet = new WalletService();
     }
 
     public int createExpenseGroup(String groupName, double totalAmount, int createdBy, List<Integer> members) throws InvalidInputException {
@@ -117,7 +122,7 @@ public class SplitwiseService {
         System.out.println("Pending Campus Dues:");
         long pendingCount = splits.stream()
                 .filter(split -> "PENDING".equalsIgnoreCase(split.getStatus()))
-                .peek(split -> System.out.println("   👉 [Split ID: " + split.getSplitId() + "] Student ID " + split.getStudentId() + " owes: ₹" + String.format("%.2f", split.getAmountOwed())))
+                .peek(split -> System.out.println("  [Split ID: " + split.getSplitId() + "] Student ID " + split.getStudentId() + " owes: ₹" + String.format("%.2f", split.getAmountOwed())))
                 .count();
 
         if (pendingCount == 0) {
@@ -127,7 +132,7 @@ public class SplitwiseService {
         System.out.println("\nCleared Ledger Accounts:");
         long paidCount = splits.stream()
                 .filter(split -> "PAID".equalsIgnoreCase(split.getStatus()))
-                .peek(split -> System.out.println("   ✅ Student ID " + split.getStudentId() + " has fully settled their share."))
+                .peek(split -> System.out.println(" Student ID " + split.getStudentId() + " has fully settled their share."))
                 .count();
 
         if (paidCount == 0) {
@@ -137,7 +142,14 @@ public class SplitwiseService {
         System.out.println("----------------------------------------------------\n");
     }
 
-    public void settleExpense(int splitId) {
+    public void settleExpense(int splitId) throws SQLException {
+
+        Connection conn = DatabaseConfig.getConnection();
+//        wallet.transfer(conn,
+//                wallet.getWalletIdByStudId(conn, < FROM_STUDENT_ID>),
+//                wallet.getWalletIdByStudId(conn, <TO_STUDENT_ID>),
+//                "TRANSFER");
+
         expenseSplitRepo.markAsPaid(splitId);
         System.out.println("[LEDGER UPDATE] Settlement successfully completed for Split ID " + splitId + ".");
     }

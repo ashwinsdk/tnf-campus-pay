@@ -6,6 +6,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class WalletRepository {
+
+    public int getLatestWalletId(Connection conn) throws SQLException{
+        String sql = "select id from wallet order by id desc limit 1";
+        try (PreparedStatement checkStudentId = conn.prepareStatement(sql)) {
+            try (ResultSet rs = checkStudentId.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return 0;
+    }
+    public int getWalletIdByStudentId(Connection conn, int studentId) throws SQLException{
+        String sql = "select id from wallet where student_id = ? ";
+        try (PreparedStatement checkStudentId = conn.prepareStatement(sql)) {
+            checkStudentId.setInt(1, studentId);
+            try (ResultSet rs = checkStudentId.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return 0;
+    }
     public boolean checkDuplicateStudentId(Connection conn, int studentId) throws SQLException {
         String sql = "select student_id from wallet where student_id = ? ";
         try (PreparedStatement checkStudentId = conn.prepareStatement(sql)) {

@@ -13,7 +13,6 @@ public class WalletService extends AccountType {
     private WalletRepository walletRepo;
     private TransactionService txService;
     private TransactionRepository tx;
-    public static int counter =100;
 
     public WalletService(){
         walletRepo = new WalletRepository();
@@ -23,6 +22,9 @@ public class WalletService extends AccountType {
     }
     public TransactionService getTx(){
         return txService;
+    }
+    public int getWalletIdByStudId(Connection conn,int student_id) throws SQLException {
+        return walletRepo.getWalletIdByStudentId(conn, student_id);
     }
     public boolean checkStudentId(Connection conn, int studentId) throws SQLException {
         return walletRepo.checkDuplicateStudentId(conn, studentId);
@@ -36,23 +38,25 @@ public class WalletService extends AccountType {
     public void createWallet(Connection conn,
                              int studentId,
                              double amount) throws Exception {
-        int localCount = counter++;
+        int walletId = walletRepo.getLatestWalletId(conn) + 1;
+
         try {
 
             conn.setAutoCommit(false);
 
             if (walletRepo.checkDuplicateWallet(conn, studentId)) {
 
-                walletRepo.createNewWallet(conn, localCount, studentId, amount);
-                tx.saveTransaction(conn, localCount, localCount, amount, "DEPOSIT");
+                walletRepo.createNewWallet(conn, walletId, studentId, amount);
+                tx.saveTransaction(conn, walletId, walletId, amount, "DEPOSIT");
                 conn.commit();
-                System.out.println("[SUCCESS] Wallet Created");
+                System.out.println("[SUCCESS] Wallet Created, Wallet id: "+ walletId);
+
             }
 
         } catch (Exception e) {
 
             conn.rollback();
-            tx.saveTransaction(conn, localCount, localCount, amount, "FAILED");
+            tx.saveTransaction(conn, walletId, walletId, amount, "FAILED");
             System.out.println("[ERROR] Wallet Creation Failed");
             throw e;
 
@@ -94,23 +98,23 @@ public class WalletService extends AccountType {
             conn.setAutoCommit(false);
             walletRepo.withdrawFromDB(conn, amount, fromId);
 
-            if (type.equals("WITHDRAW")){
-                tx.saveTransaction(conn,fromId,fromId, amount, type);
-            }
             switch (type){
-                case "hostel":
+                case "WITHDRAW":
+                    tx.saveTransaction(conn,fromId,fromId, amount, "WITHDRAW");
+                    break;
+                case "HOSTEL":
                     tx.saveTransaction(conn,fromId,fromId, amount, "HOSTEL");
                     break;
-                case "library":
+                case "LIBRARY":
                     tx.saveTransaction(conn,fromId,fromId, amount, "LIBRARY");
                     break;
-                case "hackathon":
+                case "HACKATHON":
                     tx.saveTransaction(conn,fromId,fromId, amount, "HACKATHON");
                     break;
-                case "canteen":
+                case "CANTEEN":
                     tx.saveTransaction(conn,fromId,fromId, amount, "CANTEEN");
                     break;
-                case "workshop":
+                case "WORKSHOP":
                     tx.saveTransaction(conn,fromId,fromId, amount, "WORKSHOP");
                     break;
                 default:

@@ -57,6 +57,7 @@ public class StudentServiceImplementation implements StudentService{
             logger.info("Register Service Success!");
 
             staticRepo.save(con,student);
+            System.out.println("[SUCCESS] Student created!");
 
         }
         catch(DuplicateStudentException e){
