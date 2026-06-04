@@ -47,7 +47,7 @@ public class ExpenseSplitRepositoryJdbc implements ExpenseSplitRepository {
                 while (rs.next()) {
                     // Uses your Lombok Builder strategy to rebuild the data objects
                     splits.add(ExpenseSplit.builder()
-                            .splitId(rs.getInt("id"))
+                            .splitId(rs.getInt("split_id"))
                             .groupId(rs.getInt("group_id"))
                             .studentId(rs.getInt("student_id"))
                             .amountOwed(rs.getDouble("amount_owed"))
@@ -63,7 +63,7 @@ public class ExpenseSplitRepositoryJdbc implements ExpenseSplitRepository {
 
     @Override
     public void markAsPaid(int splitId) {
-        String sql = "UPDATE expense_splits SET status = 'PAID' WHERE id = ?";
+        String sql = "UPDATE expense_splits SET status = 'PAID' WHERE split_id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

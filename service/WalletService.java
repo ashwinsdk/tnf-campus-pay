@@ -10,19 +10,28 @@ import java.sql.*;
 public class WalletService extends AccountType {
 
     InputValidator input = new InputValidator();
-    WalletRepository walletRepo;
-    TransactionRepository tx;
+    private WalletRepository walletRepo;
+    private TransactionService txService;
+    private TransactionRepository tx;
     public static int counter =100;
 
     public WalletService(){
         walletRepo = new WalletRepository();
         tx = new TransactionRepository();
+        txService= new TransactionService();
 
     }
-
+    public TransactionService getTx(){
+        return txService;
+    }
     public boolean checkStudentId(Connection conn, int studentId) throws SQLException {
-        return walletRepo.checkDuplicateWallet(conn, studentId);
+        return walletRepo.checkDuplicateStudentId(conn, studentId);
     }
+
+    public boolean checkWalletId(Connection conn, int walletId) throws SQLException {
+        return walletRepo.checkDuplicateWallet(conn, walletId);
+    }
+
 
     public void createWallet(Connection conn, int studentId, double amount) throws Exception {
         if (walletRepo.checkDuplicateWallet(conn,studentId)){
@@ -35,6 +44,7 @@ public class WalletService extends AccountType {
         }
 
     }
+
 
     @Override
     public void deposit(Connection conn, double amount, int toId, String type) throws Exception {
@@ -103,4 +113,5 @@ public class WalletService extends AccountType {
              tx.saveTransaction(conn,fromId,toId, amount, type);
         }
     }
+
 }

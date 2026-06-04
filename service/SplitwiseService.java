@@ -15,13 +15,11 @@ import org.slf4j.LoggerFactory;
 
 public class SplitwiseService {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SplitwiseService.class);
 
     private final GroupExpenseRepository groupExpenseRepo;
     private final GroupMemberRepository groupMemberRepo;
     private final ExpenseSplitRepository expenseSplitRepo;
-
 
     public SplitwiseService(GroupExpenseRepository groupExpenseRepo,
                             GroupMemberRepository groupMemberRepo,
@@ -31,8 +29,7 @@ public class SplitwiseService {
         this.expenseSplitRepo = expenseSplitRepo;
     }
 
-
-    public void createExpenseGroup(String groupName, double totalAmount, int createdBy, List<Integer> members) throws InvalidInputException {
+    public int createExpenseGroup(String groupName, double totalAmount, int createdBy, List<Integer> members) throws InvalidInputException {
 
         if (groupName == null || groupName.trim().isEmpty()) {
             throw new InvalidInputException("Group creation failed: Group name cannot be blank.");
@@ -44,7 +41,6 @@ public class SplitwiseService {
             throw new InvalidInputException("Group creation failed: You must include at least one campus student member.");
         }
 
-
         List<Integer> participants = new ArrayList<>();
         for (int studentId : members) {
             if (!participants.contains(studentId)) {
@@ -55,7 +51,6 @@ public class SplitwiseService {
             participants.add(createdBy);
         }
 
-
         GroupExpense group = GroupExpense.builder()
                 .groupName(groupName)
                 .totalAmount(totalAmount)
@@ -64,21 +59,18 @@ public class SplitwiseService {
 
         int generatedGroupId = groupExpenseRepo.createGroup(group);
         if (generatedGroupId == -1) {
-            LOGGER.error("Database processing failure. Group '{}' was not saved.", groupName);
-            return;
+            System.err.println("[ERROR] Database processing failure. Group '" + groupName + "' was not saved.");
+            return -1;
         }
-
 
         for (int studentId : participants) {
             groupMemberRepo.addMember(generatedGroupId, studentId);
         }
 
-
         int participantCount = participants.size();
         long totalPaise = Math.round(totalAmount * 100);
         long basePaise = totalPaise / participantCount;
         long remainderPaise = totalPaise % participantCount;
-
 
         for (int i = 0; i < participants.size(); i++) {
             int studentId = participants.get(i);
@@ -95,19 +87,20 @@ public class SplitwiseService {
             expenseSplitRepo.createSplit(split);
         }
 
-        LOGGER.info("Expense Group '" + groupName + "' calculated successfully [ID: " + generatedGroupId + "].");
+        // --- System outputs forced for user transparency ---
+        System.out.println("\n--- ENGINE BREAKDOWN ---");
+        System.out.println("Expense Group '" + groupName + "' calculated successfully [ID: " + generatedGroupId + "].");
         if (participantCount == 1) {
-            LOGGER.info("Only the payer is in this group, so there are no dues to split.");
+            System.out.println("Only the payer is in this group, so there are no dues to split.");
         } else {
-            LOGGER.info("Individual Split Share: ₹" + String.format("%.2f", basePaise / 100.0)
+            System.out.println("Individual Split Share: ₹" + String.format("%.2f", basePaise / 100.0)
                     + " (across " + participantCount + " participants)");
         }
+        return generatedGroupId;
     }
-
 
     public void viewGroupBalances(int groupId) throws InvalidInputException {
         GroupExpense group = groupExpenseRepo.getGroupById(groupId);
-
 
         if (group == null) {
             throw new InvalidInputException("Lookup failed: Expense Group ID " + groupId + " does not exist in our campus tables.");
@@ -115,27 +108,37 @@ public class SplitwiseService {
 
         List<ExpenseSplit> splits = expenseSplitRepo.getSplitsByGroup(groupId);
 
-        LOGGER.info("----------------------------------------------");
-        LOGGER.info("CAMPUS BALANCE MONITOR FOR: " + group.getGroupName().toUpperCase());
-        LOGGER.info("Total Paid: ₹" + group.getTotalAmount() + " | Settled By Student ID: " + group.getCreatedBy());
-        LOGGER.info("-------------------------------------------------");
+        // --- Forced terminal console printing layout ---
+        System.out.println("\n----------------------------------------------");
+        System.out.println("CAMPUS BALANCE MONITOR FOR: " + group.getGroupName().toUpperCase());
+        System.out.println("Total Paid: ₹" + group.getTotalAmount() + " | Settled By Student ID: " + group.getCreatedBy());
+        System.out.println("-------------------------------------------------");
 
-        LOGGER.info("Pending Campus Dues:");
-        splits.stream()
+        System.out.println("Pending Campus Dues:");
+        long pendingCount = splits.stream()
                 .filter(split -> "PENDING".equalsIgnoreCase(split.getStatus()))
-                .forEach(split -> LOGGER.info("   - Student ID " + split.getStudentId() + " owes: ₹" + String.format("%.2f", split.getAmountOwed())));
+                .peek(split -> System.out.println("   👉 [Split ID: " + split.getSplitId() + "] Student ID " + split.getStudentId() + " owes: ₹" + String.format("%.2f", split.getAmountOwed())))
+                .count();
 
-        LOGGER.info("Cleared Ledger Accounts:");
-        splits.stream()
+        if (pendingCount == 0) {
+            System.out.println("   (No pending dues)");
+        }
+
+        System.out.println("\nCleared Ledger Accounts:");
+        long paidCount = splits.stream()
                 .filter(split -> "PAID".equalsIgnoreCase(split.getStatus()))
-                .forEach(split -> LOGGER.info("   - Student ID " + split.getStudentId() + " has fully settled their share."));
+                .peek(split -> System.out.println("   ✅ Student ID " + split.getStudentId() + " has fully settled their share."))
+                .count();
 
-        LOGGER.info("----------------------------------------------------");
+        if (paidCount == 0) {
+            System.out.println("   (No cleared accounts yet)");
+        }
+
+        System.out.println("----------------------------------------------------\n");
     }
-
 
     public void settleExpense(int splitId) {
         expenseSplitRepo.markAsPaid(splitId);
-        LOGGER.info("Settlement requested for split ID " + splitId + ".");
+        System.out.println("[LEDGER UPDATE] Settlement successfully completed for Split ID " + splitId + ".");
     }
 }
