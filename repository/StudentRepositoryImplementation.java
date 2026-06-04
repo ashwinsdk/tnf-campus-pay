@@ -1,6 +1,5 @@
 package repository;
 
-import config.DatabaseConfig;
 import exception.StudentNotFoundException;
 import model.Student;
 import org.slf4j.Logger;
@@ -10,17 +9,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentRepositoryImplementation implements StudentRepository, AutoCloseable {
+public class StudentRepositoryImplementation implements StudentRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(StudentRepositoryImplementation.class);
 
-    Connection con = DatabaseConfig.getConnection();
+   // Connection con = DatabaseConfig.getConnection();
 
-    public StudentRepositoryImplementation() throws SQLException {
-    }
 
     @Override
-    public void save(Student student) {
+    public void save(Connection con,Student student) {
         logger.info("Saving student into DB process started");
         try(PreparedStatement ps = con.prepareStatement("insert into student(name,course,email,phone) values (?,?,?,?)")){
             ps.setString(1,student.getName());
@@ -38,19 +35,25 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
             }
             logger.info("Saved student with name={} and email={} into DB",student.getName(),student.getEmail());
 
-            Student newStudent = findByName(student.getName());
+            Student newStudent = findByName(con,student.getName());
             student.setId(newStudent.getId());
+            PreparedStatement sp = con.prepareStatement("insert into campus_payment(id) values(?)");
+
+            sp.setInt(1, newStudent.getId());
+            sp.executeUpdate();
+            sp.close();
             logger.info("Updated the newly saved student's id with id={} into DB", student.getId());
         }
         catch (SQLException e){
-            logger.error("Failed to save student into DB",e);
+            logger.error("Failed to save student into DB");
             throw new RuntimeException("Failed to save student! ",e);
         }
 
     }
 
+
     @Override
-    public Student findById(int id) {
+    public Student findById(Connection con,int id) {
         logger.info("Finding student by id into DB process started");
         try(PreparedStatement ps = con.prepareStatement("SELECT * from student where id = ?")){
             ps.setInt(1,id);
@@ -71,13 +74,13 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
             return null;
         }
         catch (SQLException e) {
-            logger.error("Failed to find student by id={} into DB",id,e);
+            logger.error("Failed to find student by id={} into DB",id);
             throw new RuntimeException("Failed to find student with id="+id,e);
         }
     }
 
     @Override
-    public Student findByName(String name) {
+    public Student findByName(Connection con,String name) {
         logger.info("Finding student by name into DB process started");
         try(PreparedStatement ps = con.prepareStatement("SELECT * from student where name = ?")){
             ps.setString(1,name);
@@ -98,13 +101,13 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
             return null;
         }
         catch (SQLException e) {
-            logger.error("Failed to find student by name={} into DB",name,e);
+            logger.error("Failed to find student by name={} into DB",name);
             throw new RuntimeException("Failed to find student with name="+name,e);
         }
     }
 
     @Override
-    public Student findByEmail(String email) {
+    public Student findByEmail(Connection con,String email) {
         logger.info("Finding student by email into DB process started");
         try(PreparedStatement ps = con.prepareStatement("SELECT * from student where email = ?")){
             ps.setString(1,email);
@@ -125,13 +128,13 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
             return null;
         }
         catch (SQLException e) {
-            logger.error("Failed to find student by email={} into DB",email,e);
+            logger.error("Failed to find student by email={} into DB",email);
             throw new RuntimeException("Failed to find student with email="+email,e);
         }
     }
 
     @Override
-    public List<Student> findAll() {
+    public List<Student> findAll(Connection con) {
         try(Statement st = con.createStatement()){
             logger.info("Finding All student into DB process started");
             ResultSet rs = st.executeQuery("SELECT * from student");
@@ -150,13 +153,13 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
 
         }
         catch (SQLException e) {
-            logger.error("Failed to find All student into DB process",e);
+            logger.error("Failed to find All student into DB process");
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void update(Student student) {
+    public void update(Connection con,Student student) {
         logger.info("Updating student into DB process started");
         try(PreparedStatement ps = con.prepareStatement("UPDATE student SET name = ?, course = ?, email = ?, phone = ?, is_active = ? WHERE id = ? ")){
             ps.setString(1, student.getName());
@@ -175,7 +178,7 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
 
         }
         catch (SQLException e) {
-            logger.error("Failed to update student with id={} into DB",student.getId(),e);
+            logger.error("Failed to update student with id={} into DB",student.getId());
             throw new RuntimeException("Failed to update student with id="+student.getId(),e);
         }
 
@@ -183,7 +186,7 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
     }
 
     @Override
-    public void deactivate(int id) {
+    public void deactivate(Connection con,int id) {
         logger.info("Deactivating student with id={} into DB process",id);
         try(PreparedStatement ps = con.prepareStatement("UPDATE student is_active = ? WHERE id = ? ")){
             ps.setBoolean(1, false);
@@ -195,13 +198,13 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
             }
         }
         catch (SQLException e) {
-            logger.error("Failed to deactivate student with id={} into DB",id,e);
+            logger.error("Failed to deactivate student with id={} into DB",id);
             throw new RuntimeException("Failed to deactivate student with id="+id,e);
         }
     }
 
     @Override
-    public void activate(int id) {
+    public void activate(Connection con,int id) {
         logger.info("Activating student with id={} into DB process",id);
         try(PreparedStatement ps = con.prepareStatement("UPDATE student is_active = ? WHERE id = ? ")){
             ps.setBoolean(1, true);
@@ -213,13 +216,9 @@ public class StudentRepositoryImplementation implements StudentRepository, AutoC
             }
         }
         catch (SQLException e) {
-            logger.error("Failed to Activating student with id={} into DB",id,e);
+            logger.error("Failed to Activating student with id={} into DB",id);
             throw new RuntimeException("Failed to Activating student with id="+id,e);
         }
     }
 
-    @Override
-    public void close() throws Exception {
-
-    }
 }

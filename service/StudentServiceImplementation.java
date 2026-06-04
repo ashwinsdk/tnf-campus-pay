@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.StudentRepositoryImplementation;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Predicate;
@@ -18,11 +19,8 @@ public class StudentServiceImplementation implements StudentService{
     private static final Logger logger = LoggerFactory.getLogger(StudentServiceImplementation.class);
 
 
-    public StudentServiceImplementation() throws SQLException {
-    }
-
     @Override
-    public void registerStudent(Student student) {
+    public void registerStudent(Connection con,Student student) throws DuplicateStudentException {
         logger.info("Register Service Started!");
         try{
             Predicate<String> isEmpty = s -> s==null || s.isEmpty();
@@ -48,24 +46,24 @@ public class StudentServiceImplementation implements StudentService{
                 throw new IllegalArgumentException("Student course email does not contain @");
             }
 
-            if(staticRepo.findByEmail(student.getEmail())!=null){
+            if(staticRepo.findByEmail(con,student.getEmail())!=null){
                 logger.warn("Student email already exists!");
                 throw new DuplicateStudentException("Student already exists");
             }
             logger.info("Register Service Success!");
 
-            staticRepo.save(student);
+            staticRepo.save(con,student);
 
         }
         catch(DuplicateStudentException e){
             logger.error(e.getMessage());
-            System.out.println(e.getMessage());
+            throw e;
         }
 
     }
 
     @Override
-    public Student getStudentById(int id) {
+    public Student getStudentById(Connection con,int id) {
         logger.info("Get Student by ID Service Started!");
         try{
             if(id<=0){
@@ -73,7 +71,7 @@ public class StudentServiceImplementation implements StudentService{
                 throw new IllegalArgumentException("Student id should be greater than 0");
             }
             logger.debug("Get Student by ID Service Started for id={} !",id);
-            Student student = staticRepo.findById(id);
+            Student student = staticRepo.findById(con,id);
 
             if(student==null){
                 logger.warn("Student by ID Service failed for id={} !",id);
@@ -84,17 +82,16 @@ public class StudentServiceImplementation implements StudentService{
         }
         catch (StudentNotFoundException e){
             logger.error(e.getMessage());
-            System.out.println(e.getMessage());
-            return null;
+            throw e;
         }
 
     }
 
     @Override
-    public List<Student> getAllStudents() {
+    public List<Student> getAllStudents(Connection con) {
         logger.info("Get All Student Service Started!");
         try{
-            List<Student> studentsList = staticRepo.findAll();
+            List<Student> studentsList = staticRepo.findAll(con);
             if(studentsList==null){
                 logger.warn("Student list is empty!");
                 throw new IllegalArgumentException("Student list is empty");
@@ -104,13 +101,12 @@ public class StudentServiceImplementation implements StudentService{
         }
         catch(IllegalArgumentException e){
             logger.error(e.getMessage());
-            System.out.println(e.getMessage());
-            return null;
+            throw e;
         }
     }
 
     @Override
-    public void updateStudent(Student student) {
+    public void updateStudent(Connection con,Student student) {
         logger.info("Update Student Service Started!");
         try{
             Predicate<String> isEmpty = s -> s==null || s.isEmpty();
@@ -136,24 +132,24 @@ public class StudentServiceImplementation implements StudentService{
                 throw new IllegalArgumentException("Student course email does not contain @");
             }
 
-            if(staticRepo.findById(student.getId())==null){
+            if(staticRepo.findById(con,student.getId())==null){
                 logger.warn("Student doesn't exists!");
                 throw new StudentNotFoundException("Student doesn't exists!");
             }
             logger.info("Update Service Success!");
 
-            staticRepo.update(student);
+            staticRepo.update(con,student);
 
 
         }
         catch(StudentNotFoundException e){
             logger.error(e.getMessage());
-            System.out.println(e.getMessage());
+            throw e;
         }
     }
 
     @Override
-    public void deActivateStudent(int id) {
+    public void deActivateStudent(Connection con,int id) {
         logger.info("DeActivate Student Service Started!");
         try{
             if(id<=0){
@@ -161,19 +157,19 @@ public class StudentServiceImplementation implements StudentService{
                 throw new IllegalArgumentException("Student id should be greater than 0");
             }
             logger.debug("DeActivate Student Service Started for id={} !",id);
-            staticRepo.deactivate(id);
+            staticRepo.deactivate(con,id);
             logger.info("DeActivate Student Service Done for id={} !",id);
 
 
         }
         catch(IllegalArgumentException e){
             logger.error(e.getMessage());
-            System.out.println(e.getMessage());
+            throw e;
         }
     }
 
     @Override
-    public void activateStudent(int id) {
+    public void activateStudent(Connection con,int id) {
         logger.info("Activate Student Service Started!");
         try{
             if(id<=0){
@@ -181,7 +177,7 @@ public class StudentServiceImplementation implements StudentService{
                 throw new IllegalArgumentException("Student id should be greater than 0");
             }
             logger.debug("Activate Student Service Started for id={} !",id);
-            staticRepo.activate(id);
+            staticRepo.activate(con,id);
             logger.info("Activate Student Service Done for id={} !",id);
 
 
@@ -189,7 +185,7 @@ public class StudentServiceImplementation implements StudentService{
         }
         catch(IllegalArgumentException e){
             logger.error(e.getMessage());
-            System.out.println(e.getMessage());
+            throw e;
         }
     }
 }

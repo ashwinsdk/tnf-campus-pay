@@ -5,7 +5,6 @@ import exception.InsufficientBalanceException;
 import exception.InvalidInputException;
 import exception.SuspiciousActivityException;
 import model.Transaction;
-import repository.StudentRepository;
 import repository.TransactionRepository;
 
 import java.sql.Connection;
