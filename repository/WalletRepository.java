@@ -6,11 +6,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class WalletRepository {
-    public boolean checkDuplicateWallet(Connection conn, int studentId) throws SQLException{
+    public boolean checkDuplicateStudentId(Connection conn, int studentId) throws SQLException {
         String sql = "select student_id from wallet where student_id = ? ";
         try (PreparedStatement checkStudentId = conn.prepareStatement(sql)) {
             checkStudentId.setInt(1, studentId);
             try (ResultSet rs = checkStudentId.executeQuery()) {
+                if (rs.next()) {
+                    return false;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
+    public boolean checkDuplicateWallet(Connection conn, int walletId) throws SQLException{
+        String sql = "select id from wallet where id = ? ";
+        try (PreparedStatement checkWalletId = conn.prepareStatement(sql)) {
+            checkWalletId.setInt(1, walletId);
+            try (ResultSet rs = checkWalletId.executeQuery()) {
                 if (rs.next()) {
                     return false;
                 }

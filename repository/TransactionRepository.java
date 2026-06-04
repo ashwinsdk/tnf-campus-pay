@@ -30,15 +30,43 @@ public class TransactionRepository {
             ps.executeUpdate();
         }
     }
+    public List<Transaction> getTransactionById(Connection conn, int walletId) throws SQLException {
+        List<Transaction> transactions = new ArrayList<>();
 
-    public List<Transaction> getAllTransactions()
-            throws SQLException {
+        String sql = "SELECT * FROM transactions WHERE sender_id = ? ORDER BY transaction_time DESC";
 
-        List<Transaction> transactions =
-                new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1,walletId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
 
-        String sql =
-                "SELECT * FROM transactions ORDER BY transaction_time DESC";
+                transactions.add(
+                        Transaction.builder()
+                                .transactionId(
+                                        rs.getInt("transaction_id"))
+                                .senderId(
+                                        rs.getInt("sender_id"))
+                                .receiverId(
+                                        rs.getInt("receiver_id"))
+                                .amount(
+                                        rs.getDouble("amount"))
+                                .transactionType(
+                                        rs.getString("transaction_type"))
+                                .transactionTime(
+                                        rs.getTimestamp("transaction_time"))
+                                .build()
+                );
+            }
+        }
+
+
+        return transactions;
+    }
+
+    public List<Transaction> getAllTransactions() throws SQLException {
+        List<Transaction> transactions = new ArrayList<>();
+
+        String sql = "SELECT * FROM transactions ORDER BY transaction_time DESC";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
