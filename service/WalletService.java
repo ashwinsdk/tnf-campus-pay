@@ -8,14 +8,34 @@ import util.InputValidator;
 import java.sql.*;
 
 public class WalletService extends AccountType {
+
     InputValidator input = new InputValidator();
     WalletRepository walletRepo;
     TransactionRepository tx;
+    public static int counter =100;
+
     public WalletService(){
         walletRepo = new WalletRepository();
         tx = new TransactionRepository();
 
     }
+
+    public boolean checkStudentId(Connection conn, int studentId) throws SQLException {
+        return walletRepo.checkDuplicateWallet(conn, studentId);
+    }
+
+    public void createWallet(Connection conn, int studentId, double amount) throws Exception {
+        if (walletRepo.checkDuplicateWallet(conn,studentId)){
+            int localCount = counter++;
+            walletRepo.createNewWallet(conn, localCount, studentId, amount);
+            deposit(conn,localCount, localCount, "DEPOSIT");
+        }
+        else {
+            System.out.println("[ERROR] Wallet Creation failed !");
+        }
+
+    }
+
     @Override
     public void deposit(Connection conn, double amount, int toId, String type) throws Exception {
         if (input.checkInput(amount)){

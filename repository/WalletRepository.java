@@ -6,6 +6,28 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class WalletRepository {
+    public boolean checkDuplicateWallet(Connection conn, int studentId) throws SQLException{
+        String sql = "select student_id from wallet where student_id = ? ";
+        try (PreparedStatement checkStudentId = conn.prepareStatement(sql)) {
+            checkStudentId.setInt(1, studentId);
+            try (ResultSet rs = checkStudentId.executeQuery()) {
+                if (rs.next()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void createNewWallet(Connection conn, int walletId, int studentId, double amount) throws SQLException{
+        String sql = "insert into wallet(id, student_id, balance) values (?, ?, ?);";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, walletId);
+        ps.setInt(2, studentId);
+        ps.setDouble(3, amount);
+        int r = ps.executeUpdate();
+        System.out.println(r +" rows updated");
+    }
     public double getBalanceFromWallet (Connection conn, int id) throws SQLException{
         String sql = "select balance from wallet where id = ?";
         try (PreparedStatement retrieveBalance = conn.prepareStatement(sql)) {
