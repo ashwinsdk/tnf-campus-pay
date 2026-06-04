@@ -33,30 +33,49 @@ public class WalletService extends AccountType {
     }
 
 
-    public void createWallet(Connection conn, int studentId, double amount) throws Exception {
-        if (walletRepo.checkDuplicateWallet(conn,studentId)){
-            int localCount = counter++;
-            walletRepo.createNewWallet(conn, localCount, studentId, amount);
-            deposit(conn,localCount, localCount, "DEPOSIT");
-        }
-        else {
-            System.out.println("[ERROR] Wallet Creation failed !");
-        }
+    public void createWallet(Connection conn,
+                             int studentId,
+                             double amount) throws Exception {
+        int localCount = counter++;
+        try {
 
+            conn.setAutoCommit(false);
+
+            if (walletRepo.checkDuplicateWallet(conn, studentId)) {
+
+                walletRepo.createNewWallet(conn, localCount, studentId, amount);
+                tx.saveTransaction(conn, localCount, localCount, amount, "DEPOSIT");
+                conn.commit();
+                System.out.println("[SUCCESS] Wallet Created");
+            }
+
+        } catch (Exception e) {
+
+            conn.rollback();
+            tx.saveTransaction(conn, localCount, localCount, amount, "FAILED");
+            System.out.println("[ERROR] Wallet Creation Failed");
+            throw e;
+
+        } finally {
+
+            conn.setAutoCommit(true);
+
+        }
     }
 
 
     @Override
     public void deposit(Connection conn, double amount, int toId, String type) throws Exception {
         if (input.checkInput(amount)){
-            if (type.equals("DEPOSIT")){
-                tx.saveTransaction(conn,toId,toId, amount, type);
+            walletRepo.depositIntoDB(conn, amount, toId);
+            if (type.equals("DEPOSIT")) {
+                tx.saveTransaction(conn, toId, toId, amount, type);
             }
-            walletRepo.depositIntoDB(conn,amount,toId);
             System.out.println("[SUCCESS] " + amount + " Deposited");
         }
         else {
             System.out.println("[ERROR] Deposit failed !");
+            tx.saveTransaction(conn, toId, toId, amount, "FAILED");
         }
 
 
@@ -72,6 +91,7 @@ public class WalletService extends AccountType {
         double balance = walletRepo.getBalanceFromWallet(conn, fromId);
 
         if (balance >= amount){
+            conn.setAutoCommit(false);
             walletRepo.withdrawFromDB(conn, amount, fromId);
 
             if (type.equals("WITHDRAW")){
@@ -98,19 +118,39 @@ public class WalletService extends AccountType {
             }
         }
         else {
+            conn.rollback();
+            tx.saveTransaction(conn,fromId,fromId, amount, "FAILED");
             throw new SQLException("[ERROR] Withdrawal failed: insufficient balance");
         }
 
     }
 
     @Override
-    public void transfer(Connection conn, int fromId, int toId, double amount, String type) throws Exception {
-        // Withdraw throws on failure, so we only deposit when the debit actually succeeded.
+    public void transfer(Connection conn, int fromId, int toId,
+                         double amount, String type) throws Exception {
 
-        withdraw(conn, amount, fromId, type);
-        deposit(conn, amount, toId, type);
-        if (type.equals("TRANSFER")) {
-             tx.saveTransaction(conn,fromId,toId, amount, type);
+        try {
+
+            conn.setAutoCommit(false);
+
+            withdraw(conn, amount, fromId, type);
+            deposit(conn, amount, toId, type);
+            tx.saveTransaction(conn, fromId, toId, amount, type);
+            conn.commit();
+
+            System.out.println("[SUCCESS] Transfer Completed");
+
+        } catch (Exception e) {
+
+            conn.rollback();
+            tx.saveTransaction(conn, fromId, toId, amount, "FAILED");
+            System.out.println("[ERROR] Transfer Failed. Transaction Rolled Back");
+            throw e;
+
+        } finally {
+
+            conn.setAutoCommit(true);
+
         }
     }
 
