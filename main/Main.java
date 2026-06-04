@@ -25,6 +25,7 @@ public class Main {
                 new GroupMemberRepositoryJdbc(),
                 new ExpenseSplitRepositoryJdbc()
         );
+        CampusPaymentService campus = new CampusPaymentService();
 /*
         // campus pay
         InstituteMoney im = new InstituteMoney();

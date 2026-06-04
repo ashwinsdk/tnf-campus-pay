@@ -2,8 +2,8 @@ package service;
 
 import exception.FeeAlreadyPaid;
 import exception.StudentNotFoundException;
-import model.PaymentProcessor;
-import model.CampusPayment;
+import model.campus_payments.PaymentProcessor;
+import model.campus_payments.CampusPayment;
 import model.Student;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +83,11 @@ public class CampusPaymentService {
 
 
 
-        processor.processPayment(student, payment, con);
+        try {
+            processor.processPayment(student, payment, con);
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
     }
 }

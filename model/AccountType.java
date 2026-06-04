@@ -19,6 +19,6 @@ public abstract class AccountType {
 //        this.balance  = balance;
 //    }
     public abstract void deposit(Connection conn, double amount, int toId, String type) throws Exception;
-    public abstract void withdraw(Connection conn, double amount, int fromId, String type) throws SQLException;
+    public abstract void withdraw(Connection conn, double amount, int fromId, String type) throws Exception;
     public abstract void transfer(Connection conn, int fromId, int toId, double amount, String type) throws Exception;
 }

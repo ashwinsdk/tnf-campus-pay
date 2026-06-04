@@ -1,4 +1,4 @@
-package model;
+package model.campus_payments;
 
 
 public class Hostel extends CampusPayment {

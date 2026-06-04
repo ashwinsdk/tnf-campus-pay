@@ -1,7 +1,7 @@
 package repository.jdbc;
 
 import config.DatabaseConfig;
-import model.ExpenseSplit;
+import model.split_expense.ExpenseSplit;
 import repository.ExpenseSplitRepository;
 
 import java.sql.Connection;

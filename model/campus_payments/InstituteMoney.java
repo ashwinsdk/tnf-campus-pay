@@ -1,4 +1,4 @@
-package model;
+package model.campus_payments;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

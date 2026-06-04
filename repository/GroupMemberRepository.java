@@ -1,5 +1,4 @@
 package repository;
-import model.GroupMember;
 
 import java.util.List;
 

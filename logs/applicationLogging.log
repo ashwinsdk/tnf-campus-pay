@@ -33,3 +33,23 @@
 2026-06-04 15:23:26 [main] DEBUG r.StudentRepositoryImplementation - Finding student by name=test into DB process right now
 2026-06-04 15:23:26 [main] DEBUG r.StudentRepositoryImplementation - Found student by name=test into DB process
 2026-06-04 15:23:26 [main] INFO  r.StudentRepositoryImplementation - Updated the newly saved student's id with id=4 into DB
+2026-06-04 17:58:01 [main] INFO  r.StudentRepositoryImplementation - Checking for student if already registered...
+2026-06-04 17:58:34 [main] INFO  s.StudentServiceImplementation - Register Service Started!
+2026-06-04 17:58:34 [main] INFO  r.StudentRepositoryImplementation - Finding student by email into DB process started
+2026-06-04 17:58:34 [main] DEBUG r.StudentRepositoryImplementation - Finding student by email=test@com.com into DB process right now
+2026-06-04 17:58:34 [main] DEBUG r.StudentRepositoryImplementation - Found student by email=test@com.com into DB process
+2026-06-04 17:58:34 [main] WARN  s.StudentServiceImplementation - Student email already exists!
+2026-06-04 17:58:34 [main] ERROR s.StudentServiceImplementation - Student already exists
+2026-06-04 17:58:47 [main] INFO  r.StudentRepositoryImplementation - Checking for student if already registered...
+2026-06-04 17:59:07 [main] INFO  s.StudentServiceImplementation - Register Service Started!
+2026-06-04 17:59:07 [main] INFO  r.StudentRepositoryImplementation - Finding student by email into DB process started
+2026-06-04 17:59:07 [main] DEBUG r.StudentRepositoryImplementation - Finding student by email=test@sample.com into DB process right now
+2026-06-04 17:59:07 [main] WARN  r.StudentRepositoryImplementation - Student with email=test@sample.com found in DB
+2026-06-04 17:59:07 [main] INFO  s.StudentServiceImplementation - Register Service Success!
+2026-06-04 17:59:07 [main] INFO  r.StudentRepositoryImplementation - Saving student into DB process started
+2026-06-04 17:59:07 [main] DEBUG r.StudentRepositoryImplementation - Inserting student with name=sample user amd email=test@sample.com into DB right now
+2026-06-04 17:59:07 [main] INFO  r.StudentRepositoryImplementation - Saved student with name=sample user and email=test@sample.com into DB
+2026-06-04 17:59:07 [main] INFO  r.StudentRepositoryImplementation - Finding student by name into DB process started
+2026-06-04 17:59:07 [main] DEBUG r.StudentRepositoryImplementation - Finding student by name=sample user into DB process right now
+2026-06-04 17:59:07 [main] DEBUG r.StudentRepositoryImplementation - Found student by name=sample user into DB process
+2026-06-04 17:59:07 [main] INFO  r.StudentRepositoryImplementation - Updated the newly saved student's id with id=5 into DB

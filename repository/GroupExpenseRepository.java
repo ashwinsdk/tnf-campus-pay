@@ -1,5 +1,5 @@
 package repository;
-import model.GroupExpense;
+import model.split_expense.GroupExpense;
 
 import java.util.List;
 

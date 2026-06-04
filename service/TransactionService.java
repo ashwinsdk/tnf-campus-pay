@@ -8,6 +8,9 @@ import model.Transaction;
 import repository.TransactionRepository;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class TransactionService {
@@ -64,7 +67,13 @@ public class TransactionService {
         System.out.println("----------------------------");
 
     }
-
+    public boolean isDailyLimitReached(Connection conn, int walletId, double dailyLimit ) throws SQLException {
+        double spent = transactionRepository.getTransactionById(conn, walletId).stream()
+                .filter(t -> t.getTransactionTime().toLocalDateTime().equals(LocalDateTime.now()))
+                .map(t -> t.getAmount())
+                .reduce(0.0, Double::sum);
+        return dailyLimit > spent;
+    }
 
 
 }

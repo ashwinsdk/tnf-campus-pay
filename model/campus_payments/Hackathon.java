@@ -1,4 +1,4 @@
-package model;
+package model.campus_payments;
 
 public class Hackathon extends CampusPayment {
     public Hackathon() {

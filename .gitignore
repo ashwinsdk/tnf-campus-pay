@@ -1,6 +1,5 @@
-.idea/*
-out/*
-<<<<<<< Updated upstream
-target/*
-=======
->>>>>>> Stashed changes
+/.idea
+/out
+/target
+/META-INF
+/logs

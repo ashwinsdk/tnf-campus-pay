@@ -1,4 +1,4 @@
-package model;
+package model.split_expense;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

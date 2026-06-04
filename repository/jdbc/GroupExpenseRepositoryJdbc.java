@@ -1,6 +1,6 @@
 package repository.jdbc;
 
-import model.GroupExpense;
+import model.split_expense.GroupExpense;
 import repository.GroupExpenseRepository;
 
 import java.util.List;

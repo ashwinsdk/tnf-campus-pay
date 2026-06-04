@@ -13,6 +13,8 @@ public class WalletService extends AccountType {
     private WalletRepository walletRepo;
     private TransactionService txService;
     private TransactionRepository tx;
+    private final double dailyLimit = 500;
+
 
     public WalletService(){
         walletRepo = new WalletRepository();
@@ -20,12 +22,18 @@ public class WalletService extends AccountType {
         txService= new TransactionService();
 
     }
+    public boolean checkDailyLimit(Connection conn, int walletId ){
+        return false;
+    }
+
     public TransactionService getTx(){
         return txService;
     }
+
     public int getWalletIdByStudId(Connection conn,int student_id) throws SQLException {
         return walletRepo.getWalletIdByStudentId(conn, student_id);
     }
+
     public boolean checkStudentId(Connection conn, int studentId) throws SQLException {
         return walletRepo.checkDuplicateStudentId(conn, studentId);
     }
@@ -86,7 +94,7 @@ public class WalletService extends AccountType {
     }
 
     @Override
-    public void withdraw(Connection conn, double amount, int fromId, String type) throws SQLException {
+    public void withdraw(Connection conn, double amount, int fromId, String type) throws Exception {
 
         if (!input.checkInput(amount)) {
             throw new SQLException("[ERROR] Withdrawal failed: invalid amount " + amount);
@@ -96,35 +104,41 @@ public class WalletService extends AccountType {
 
         if (balance >= amount){
             conn.setAutoCommit(false);
-            walletRepo.withdrawFromDB(conn, amount, fromId);
 
-            switch (type){
-                case "WITHDRAW":
-                    tx.saveTransaction(conn,fromId,fromId, amount, "WITHDRAW");
-                    break;
-                case "HOSTEL":
-                    tx.saveTransaction(conn,fromId,fromId, amount, "HOSTEL");
-                    break;
-                case "LIBRARY":
-                    tx.saveTransaction(conn,fromId,fromId, amount, "LIBRARY");
-                    break;
-                case "HACKATHON":
-                    tx.saveTransaction(conn,fromId,fromId, amount, "HACKATHON");
-                    break;
-                case "CANTEEN":
-                    tx.saveTransaction(conn,fromId,fromId, amount, "CANTEEN");
-                    break;
-                case "WORKSHOP":
-                    tx.saveTransaction(conn,fromId,fromId, amount, "WORKSHOP");
-                    break;
-                default:
-                    break;
+            if (txService.isDailyLimitReached(conn, fromId, dailyLimit)){
+                walletRepo.withdrawFromDB(conn, amount, fromId);
+                switch (type){
+                    case "WITHDRAW":
+                        tx.saveTransaction(conn,fromId,fromId, amount, "WITHDRAW");
+                        break;
+                    case "HOSTEL":
+                        tx.saveTransaction(conn,fromId,101, amount, "HOSTEL");
+                        deposit(conn, amount, 101, "CREDITED");
+                        break;
+                    case "LIBRARY":
+                        tx.saveTransaction(conn,fromId,101, amount, "LIBRARY");
+                        break;
+                    case "HACKATHON":
+                        tx.saveTransaction(conn,fromId,101, amount, "HACKATHON");
+                        break;
+                    case "CANTEEN":
+                        tx.saveTransaction(conn,fromId,101, amount, "CANTEEN");
+                        break;
+                    case "WORKSHOP":
+                        tx.saveTransaction(conn,fromId,101, amount, "WORKSHOP");
+                        break;
+                    default:
+                        break;
+                }
             }
+            else{
+                    System.out.println("[ERROR] DAILY LIMIT REACHED");
+                }
         }
         else {
             conn.rollback();
             tx.saveTransaction(conn,fromId,fromId, amount, "FAILED");
-            throw new SQLException("[ERROR] Withdrawal failed: insufficient balance");
+//            throw new SQLException("[ERROR] Withdrawal failed: insufficient balance");
         }
 
     }
@@ -134,11 +148,12 @@ public class WalletService extends AccountType {
                          double amount, String type) throws Exception {
 
         try {
-
             conn.setAutoCommit(false);
+
 
             withdraw(conn, amount, fromId, type);
             deposit(conn, amount, toId, type);
+
             tx.saveTransaction(conn, fromId, toId, amount, type);
             conn.commit();
 

@@ -2,8 +2,8 @@ package service;
 
 import config.DatabaseConfig;
 import exception.InvalidInputException;
-import model.ExpenseSplit;
-import model.GroupExpense;
+import model.split_expense.ExpenseSplit;
+import model.split_expense.GroupExpense;
 import repository.ExpenseSplitRepository;
 import repository.GroupExpenseRepository;
 import repository.GroupMemberRepository;

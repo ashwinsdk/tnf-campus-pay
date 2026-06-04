@@ -73,6 +73,7 @@ public class WalletRepository {
         int r = ps.executeUpdate();
         System.out.println(r +" rows updated");
     }
+
     public double getBalanceFromWallet (Connection conn, int id) throws SQLException{
         String sql = "select balance from wallet where id = ?";
         try (PreparedStatement retrieveBalance = conn.prepareStatement(sql)) {
